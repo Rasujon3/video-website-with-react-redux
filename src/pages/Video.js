@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Player from "../components/Description/Player";
+import VideoPlayer from "../components/Description/Player";
 import VideoDescription from "../components/Description/VideoDescription";
 import RelatedVideoList from "../components/List/RelatedVideoList";
 import { fetchVideo } from "../features/video/videoSlice";
@@ -8,11 +8,11 @@ import { useParams } from "react-router-dom";
 import Loading from "../components/UI/Loading";
 
 const Video = () => {
-  const dispatch = useDispatch();
-  const { videoId } = useParams();
-  const { isLoading, isError, error, video } = useSelector(
+  const { video, isLoading, isError, error } = useSelector(
     (state) => state.video
   );
+  const dispatch = useDispatch();
+  const { videoId } = useParams();
 
   useEffect(() => {
     dispatch(fetchVideo(videoId));
@@ -22,30 +22,24 @@ const Video = () => {
 
   // decide what to render
   let content = null;
+  if (isLoading) content = <Loading />;
 
-  if (isLoading) {
-    content = <Loading />;
-  }
-
-  if (!isLoading && isError) {
+  if (!isLoading && isError)
     content = <div className="col-span-12">{error}</div>;
-  }
 
   if (!isLoading && !isError && !video?.id) {
-    content = <div className="col-span-12">{error}</div>;
+    content = <div className="col-span-12">No video found!</div>;
   }
 
-  if (!isLoading && !isError && !video?.id) {
+  if (!isLoading && !isError && video?.id) {
     content = (
-      <div className="grid grid-cols-3 gap-2 lg:gap-8">
-        <div className="col-span-full w-full space-y-8 lg:col-span-2">
-          {/* <!-- video player --> */}
-          <Player link={link} title={title} />
-          {/* <!-- video description --> */}
+      <div class="grid grid-cols-3 gap-2 lg:gap-8">
+        <div class="col-span-full w-full space-y-8 lg:col-span-2">
+          <VideoPlayer link={link} title={title} />
+
           <VideoDescription video={video} />
         </div>
 
-        {/* <!-- related videos --> */}
         <RelatedVideoList currentVideoId={id} tags={tags} />
       </div>
     );
